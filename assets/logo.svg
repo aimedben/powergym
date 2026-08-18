@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D0D0D"/>
+      <stop offset="100%" style="stop-color:#1A1A2E"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00E676"/>
+      <stop offset="100%" style="stop-color:#00C853"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00E676;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#00E676;stop-opacity:0"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#00E676" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="190" fill="url(#bgGrad)" stroke="#00E676" stroke-width="2" stroke-opacity="0.3"/>
+
+  <!-- Outer ring glow -->
+  <circle cx="200" cy="200" r="180" fill="none" stroke="#00E676" stroke-width="1" stroke-opacity="0.15"/>
+
+  <!-- Dumbbell icon -->
+  <g transform="translate(200, 155)" filter="url(#shadow)">
+    <!-- Left weight -->
+    <rect x="-85" y="-18" width="30" height="36" rx="4" fill="url(#greenGrad)"/>
+    <rect x="-75" y="-28" width="20" height="56" rx="4" fill="url(#greenGrad)"/>
+    
+    <!-- Bar -->
+    <rect x="-55" y="-6" width="110" height="12" rx="6" fill="url(#greenGrad)"/>
+    
+    <!-- Right weight -->
+    <rect x="55" y="-18" width="30" height="36" rx="4" fill="url(#greenGrad)"/>
+    <rect x="55" y="-28" width="20" height="56" rx="4" fill="url(#greenGrad)"/>
+  </g>
+
+  <!-- Lightning bolt accent -->
+  <g transform="translate(200, 155)" filter="url(#glow)">
+    <polygon points="8,-40 -4,-8 4,-8 -8,40 4,8 -4,8" fill="#00E676" opacity="0.9"/>
+  </g>
+
+  <!-- POWER text -->
+  <text x="200" y="245" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="52" fill="white" letter-spacing="4">POWER</text>
+
+  <!-- GYM text -->
+  <text x="200" y="295" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="52" fill="#00E676" letter-spacing="8">GYM</text>
+
+  <!-- Subtle tagline -->
+  <text x="200" y="325" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="400" font-size="12" fill="#ffffff" opacity="0.4" letter-spacing="6">ATHLETE MANAGEMENT</text>
+
+  <!-- Corner accents -->
+  <line x1="60" y1="350" x2="140" y2="350" stroke="#00E676" stroke-width="1" stroke-opacity="0.3"/>
+  <line x1="260" y1="350" x2="340" y2="350" stroke="#00E676" stroke-width="1" stroke-opacity="0.3"/>
+</svg>

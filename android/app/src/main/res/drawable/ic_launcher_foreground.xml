@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Shield shape background -->
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="M54,18 L82,32 L82,60 C82,74 70,84 54,90 C38,84 26,74 26,60 L26,32 Z" />
+
+    <!-- Shield inner highlight -->
+    <path
+        android:fillColor="#3B82F6"
+        android:pathData="M54,22 L78,34 L78,58 C78,71 68,80 54,85 C40,80 30,71 30,58 L30,34 Z" />
+
+    <!-- Shield gradient overlay (top lighter) -->
+    <path
+        android:fillColor="#60A5FA"
+        android:fillAlpha="0.3"
+        android:pathData="M54,22 L78,34 L78,50 L30,50 L30,34 Z" />
+
+    <!-- Dumbbell bar -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,53 L70,53 L70,57 L38,57 Z" />
+
+    <!-- Left weight plate outer -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,42 L40,42 L40,68 L32,68 Z" />
+
+    <!-- Right weight plate outer -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M68,42 L76,42 L76,68 L68,68 Z" />
+
+    <!-- Left weight plate inner (smaller) -->
+    <path
+        android:fillColor="#06B6D4"
+        android:pathData="M34,45 L38,45 L38,65 L34,65 Z" />
+
+    <!-- Right weight plate inner (smaller) -->
+    <path
+        android:fillColor="#06B6D4"
+        android:pathData="M70,45 L74,45 L74,65 L70,65 Z" />
+
+    <!-- Bar accent line -->
+    <path
+        android:fillColor="#06B6D4"
+        android:fillAlpha="0.6"
+        android:pathData="M38,54.5 L70,54.5 L70,55.5 L38,55.5 Z" />
+
+    <!-- Top accent glow -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.15"
+        android:pathData="M40,28 L68,28 L68,32 L40,32 Z" />
+
+</vector>
