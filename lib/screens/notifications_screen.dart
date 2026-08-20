@@ -72,7 +72,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'All good!',
+                    'Tout est bon !',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -81,7 +81,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'No notifications right now.',
+                    'Aucune notification pour le moment.',
                     style: TextStyle(fontSize: 15, color: isDark ? Colors.white38 : const Color(0xFF64748B)),
                   ),
                 ],
@@ -124,7 +124,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           builder: (ctx) => AlertDialog(
                             backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            title: Text('Clear all?',
+                            title: Text('Tout effacer ?',
                                 style: TextStyle(
                                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                                   fontWeight: FontWeight.w800,
@@ -136,12 +136,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(ctx, false),
-                                child: Text('Cancel', style: TextStyle(color: isDark ? Colors.white54 : const Color(0xFF64748B))),
+                                child: Text('Annuler', style: TextStyle(color: isDark ? Colors.white54 : const Color(0xFF64748B))),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(ctx, true),
                                 style: TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
-                                child: const Text('Clear All'),
+                                child: const Text('Tout effacer'),
                               ),
                             ],
                           ),
@@ -149,7 +149,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         if (confirm == true) _dismissAll(visible);
                       },
                       icon: const Icon(Icons.delete_sweep_rounded, size: 18),
-                      label: const Text('Clear All', style: TextStyle(fontWeight: FontWeight.w700)),
+                      label: const Text('Tout effacer', style: TextStyle(fontWeight: FontWeight.w700)),
                       style: TextButton.styleFrom(
                         foregroundColor: const Color(0xFFEF4444),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -206,10 +206,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           'key': '${athlete.id}_expired',
           'type': 'expired',
           'icon': Icons.cancel,
-          'title': '${athlete.name} — Expired',
-          'subtitle': 'Subscription ended on ${_formatDate(sub.endDate)}',
+          'title': '${athlete.name} — Expiré',
+          'subtitle': 'L\'abonnement a expiré le ${_formatDate(sub.endDate)}',
           'color': const Color(0xFFEF4444),
-          'time': 'Expired',
+          'time': 'Expiré',
           'athleteId': athlete.id,
         });
       }
@@ -219,10 +219,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           'key': '${athlete.id}_expiring3',
           'type': 'expiring3',
           'icon': Icons.warning,
-          'title': '${athlete.name} — Expiring in $daysLeft days',
-          'subtitle': 'Subscription ends on ${_formatDate(sub.endDate)}',
+          'title': '${athlete.name} — Expire dans $daysLeft jours',
+          'subtitle': 'L\'abonnement se termine le ${_formatDate(sub.endDate)}',
           'color': const Color(0xFFF59E0B),
-          'time': '$daysLeft days left',
+          'time': '$daysLeft jours restants',
           'athleteId': athlete.id,
         });
       }
@@ -232,10 +232,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           'key': '${athlete.id}_expiring7',
           'type': 'expiring7',
           'icon': Icons.schedule,
-          'title': '${athlete.name} — Expiring soon',
-          'subtitle': 'Subscription ends on ${_formatDate(sub.endDate)}',
+          'title': '${athlete.name} — Expire bientôt',
+          'subtitle': 'L\'abonnement se termine le ${_formatDate(sub.endDate)}',
           'color': const Color(0xFFF59E0B),
-          'time': '$daysLeft days left',
+          'time': '$daysLeft jours restants',
           'athleteId': athlete.id,
         });
       }
@@ -245,10 +245,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           'key': '${athlete.id}_unpaid',
           'type': 'unpaid',
           'icon': Icons.attach_money,
-          'title': '${athlete.name} — Payment pending',
-          'subtitle': '${sub.price.toStringAsFixed(0)} DA not paid',
+          'title': '${athlete.name} — Paiement en attente',
+          'subtitle': '${sub.price.toStringAsFixed(0)} DA non payé',
           'color': const Color(0xFF8B5CF6),
-          'time': 'Unpaid',
+          'time': 'Impayé',
           'athleteId': athlete.id,
         });
       }

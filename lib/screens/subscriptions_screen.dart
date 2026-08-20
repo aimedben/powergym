@@ -106,9 +106,9 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen>
             return TabBarView(
               controller: _tabController,
               children: [
-                _buildSubscriptionList(active, 'No active subscriptions', Icons.check_circle_outline),
-                _buildSubscriptionList(expiring, 'No expiring subscriptions', Icons.warning_amber_outlined),
-                _buildSubscriptionList(expired, 'No expired subscriptions', Icons.cancel_outlined),
+                _buildSubscriptionList(active, 'Aucun abonnement actif', Icons.check_circle_outline),
+                _buildSubscriptionList(expiring, 'Aucun abonnement expirant', Icons.warning_amber_outlined),
+                _buildSubscriptionList(expired, 'Aucun abonnement expiré', Icons.cancel_outlined),
               ],
             );
           },
@@ -138,7 +138,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen>
             )
           : null,
       title: Text(
-        'SUBSCRIPTIONS',
+        'ABONNEMENTS',
         style: TextStyle(
           fontFamily: SportFonts.black,
           fontSize: 18,
@@ -150,7 +150,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen>
       actions: [
         IconButton(
           icon: Icon(Icons.checklist, color: textColor),
-          tooltip: 'Select multiple',
+          tooltip: 'Sélection multiple',
           onPressed: () => setState(() => _isSelectionMode = true),
         ),
       ],
@@ -162,9 +162,9 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen>
         unselectedLabelColor: unselectedColor,
         labelStyle: const TextStyle(fontFamily: SportFonts.condensed, fontSize: 13, fontWeight: FontWeight.w800),
         tabs: const [
-          Tab(text: 'Active'),
-          Tab(text: 'Expiring'),
-          Tab(text: 'Expired'),
+          Tab(text: 'Actif'),
+          Tab(text: 'Expirant'),
+          Tab(text: 'Expiré'),
         ],
       ),
     );
@@ -182,7 +182,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen>
       title: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: Text(
-          '${_selectedIds.length} SELECTED',
+          '${_selectedIds.length} SÉLECTIONNÉ(S)',
           key: ValueKey(_selectedIds.length),
           style: TextStyle(
             fontFamily: SportFonts.black,
@@ -210,7 +210,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen>
                 });
               },
               icon: const Icon(Icons.select_all, size: 20, color: SportColors.primary),
-              label: const Text('ALL', style: TextStyle(
+              label: const Text('TOUT', style: TextStyle(
                 fontFamily: SportFonts.condensed, fontSize: 12, fontWeight: FontWeight.w800,
                 color: SportColors.primary, letterSpacing: 0.8,
               )),
@@ -614,11 +614,11 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen>
 
   String _getSubscriptionTypeLabel(SubscriptionType type) {
     switch (type) {
-      case SubscriptionType.monthly: return 'Monthly';
-      case SubscriptionType.quarterly: return 'Quarterly';
-      case SubscriptionType.semester: return 'Semester';
-      case SubscriptionType.annual: return 'Annual';
-      case SubscriptionType.custom: return 'Custom';
+      case SubscriptionType.monthly: return 'Mensuel';
+      case SubscriptionType.quarterly: return '3 Mois';
+      case SubscriptionType.semester: return '6 Mois';
+      case SubscriptionType.annual: return '1 An';
+      case SubscriptionType.custom: return 'Perso';
     }
   }
 

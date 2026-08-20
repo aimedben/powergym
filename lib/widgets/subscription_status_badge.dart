@@ -175,19 +175,19 @@ class _SubscriptionStatusBadgeState extends State<SubscriptionStatusBadge>
     switch (widget.status) {
       case SubscriptionStatus.active:
         return StatusConfig(
-          label: 'Active',
+          label: 'Actif',
           icon: Icons.check_circle,
           color: const Color(0xFF10B981), // Emerald
         );
       case SubscriptionStatus.expiringSoon:
         return StatusConfig(
-          label: 'Expiring',
+          label: 'Expirant',
           icon: Icons.warning_amber,
           color: const Color(0xFFF59E0B), // Amber
         );
       case SubscriptionStatus.expired:
         return StatusConfig(
-          label: 'Expired',
+          label: 'Expiré',
           icon: Icons.cancel,
           color: const Color(0xFFEF4444), // Red
         );

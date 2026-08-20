@@ -9,10 +9,10 @@ class PricingSettingsScreen extends StatelessWidget {
   const PricingSettingsScreen({super.key});
 
   static const Map<SubscriptionType, String> _typeLabels = {
-    SubscriptionType.monthly: 'Monthly',
-    SubscriptionType.quarterly: '3 Months',
-    SubscriptionType.semester: '6 Months',
-    SubscriptionType.annual: '1 Year',
+    SubscriptionType.monthly: 'Mensuel',
+    SubscriptionType.quarterly: '3 Mois',
+    SubscriptionType.semester: '6 Mois',
+    SubscriptionType.annual: '1 An',
   };
 
   static const Map<SubscriptionType, IconData> _typeIcons = {
@@ -102,7 +102,7 @@ class PricingSettingsScreen extends StatelessWidget {
                 child: TextButton.icon(
                   onPressed: () => _resetPrices(context),
                   icon: const Icon(Icons.restore, size: 18),
-                  label: const Text('Reset to defaults'),
+                  label: const Text('Réinitialiser les prix'),
                   style: TextButton.styleFrom(
                     foregroundColor: subColor,
                   ),
@@ -287,7 +287,7 @@ class _PricingCardState extends State<_PricingCard> {
       case SubscriptionType.quarterly: return '3 mois';
       case SubscriptionType.semester: return '6 mois';
       case SubscriptionType.annual: return '12 mois';
-      case SubscriptionType.custom: return 'Custom';
+      case SubscriptionType.custom: return 'Personnalisé';
     }
   }
 }

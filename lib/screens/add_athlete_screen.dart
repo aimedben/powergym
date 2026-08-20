@@ -146,16 +146,16 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Choose Photo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              const Text('Choisir une photo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.camera_alt, color: Color(0xFF3B82F6)),
-                title: const Text('Camera'),
+                title: const Text('Caméra'),
                 onTap: () => Navigator.pop(context, ImageSource.camera),
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library, color: Color(0xFF10B981)),
-                title: const Text('Gallery'),
+                title: const Text('Galerie'),
                 onTap: () => Navigator.pop(context, ImageSource.gallery),
               ),
             ],
@@ -264,9 +264,9 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
             firstName: _firstNameController.text.trim().isEmpty ? null : _firstNameController.text.trim(),
             name: _nameController.text.trim(),
             phone: _phoneController.text.trim(),
-            email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
-            birthDate: _birthDate,
-            notes: existing.notes,
+              email: null,
+              birthDate: _birthDate,
+              notes: existing.notes,
             gender: _selectedGender,
             photoPath: permanentPhotoPath ?? _photoFile?.path,
             startDate: _startDate,
@@ -304,7 +304,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
           firstName: _firstNameController.text.trim().isEmpty ? null : _firstNameController.text.trim(),
           name: _nameController.text.trim(),
           phone: _phoneController.text.trim(),
-          email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+          email: null,
           birthDate: _birthDate,
           notes: null,
           startDate: _startDate,
@@ -335,7 +335,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isEditing ? 'Athlete updated!' : 'Athlete added!'),
+            content: Text(isEditing ? 'Athlète modifié !' : 'Athlète ajouté !'),
             backgroundColor: const Color(0xFF10B981),
           ),
         );
@@ -367,7 +367,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          isEditing ? 'Edit Athlete' : 'Add Athlete',
+          isEditing ? 'Modifier l\'athlète' : 'Ajouter un athlète',
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         actions: [
@@ -392,17 +392,14 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
             const SizedBox(height: 24),
 
             // ═══ Basic Information ═══
-            _buildSectionHeader('Basic Information', Icons.person, const Color(0xFF3B82F6)),
+            _buildSectionHeader('INFORMATIONS', Icons.person, const Color(0xFF3B82F6)),
             const SizedBox(height: 12),
-            _buildTextField(_firstNameController, 'First Name', Icons.badge_outlined, isDark),
+            _buildTextField(_firstNameController, 'Prénom', Icons.badge_outlined, isDark),
             const SizedBox(height: 12),
-            _buildTextField(_nameController, 'Last Name', Icons.person_outline, isDark, required: true),
+            _buildTextField(_nameController, 'Nom', Icons.person_outline, isDark, required: true),
             const SizedBox(height: 12),
-            _buildTextField(_phoneController, 'Phone Number', Icons.phone_outlined, isDark,
+            _buildTextField(_phoneController, 'Numéro de téléphone', Icons.phone_outlined, isDark,
                 keyboardType: TextInputType.phone, required: true),
-            const SizedBox(height: 12),
-            _buildTextField(_emailController, 'Email (Optional)', Icons.email_outlined, isDark,
-                keyboardType: TextInputType.emailAddress),
             const SizedBox(height: 12),
             _buildDateField(
               isDark: isDark,
@@ -410,7 +407,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
               subtextColor: subtextColor,
               icon: Icons.cake_outlined,
               color: const Color(0xFFEC4899),
-              label: 'Birth Date',
+              label: 'Date de naissance',
               value: _birthDate ?? DateTime(2000),
               onTap: () => _selectBirthDate(context),
             ),
@@ -418,11 +415,11 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
             const SizedBox(height: 24),
 
             // ═══ Subscription & Payment ═══
-            _buildSectionHeader('Subscription & Payment', Icons.card_membership, const Color(0xFF10B981)),
+            _buildSectionHeader('ABONNEMENT & PAIEMENT', Icons.card_membership, const Color(0xFF10B981)),
             const SizedBox(height: 12),
             _buildSubscriptionTypeSelector(isDark, cardColor, textColor),
             const SizedBox(height: 12),
-            _buildTextField(_priceController, 'Price (DA)', Icons.attach_money, isDark,
+            _buildTextField(_priceController, 'Prix (DA)', Icons.attach_money, isDark,
                 keyboardType: TextInputType.number),
             const SizedBox(height: 12),
             _buildDateField(
@@ -431,7 +428,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
               subtextColor: subtextColor,
               icon: Icons.calendar_today,
               color: const Color(0xFF3B82F6),
-              label: 'Registration Date',
+              label: 'Date d\'inscription',
               value: _startDate,
               onTap: () => _selectStartDate(context),
             ),
@@ -445,7 +442,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
                 subtextColor: subtextColor,
                 icon: Icons.payments_outlined,
                 color: const Color(0xFF10B981),
-                label: 'Payment Date',
+                label: 'Date de paiement',
                 value: _paymentDate ?? DateTime.now(),
                 onTap: () => _selectPaymentDate(context),
               ),
@@ -456,7 +453,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
             const SizedBox(height: 24),
 
             // ═══ Body Measurements ═══
-            _buildSectionHeader('Body Measurements', Icons.monitor_weight_outlined, const Color(0xFF8B5CF6)),
+            _buildSectionHeader('MESURES DU CORPS', Icons.monitor_weight_outlined, const Color(0xFF8B5CF6)),
             const SizedBox(height: 12),
             _buildDateField(
               isDark: isDark,
@@ -464,7 +461,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
               subtextColor: subtextColor,
               icon: Icons.event_note_outlined,
               color: const Color(0xFF8B5CF6),
-              label: 'Measurement Date',
+              label: 'Date de mesure',
               value: _measureDate,
               onTap: () => _selectMeasureDate(context),
             ),
@@ -472,12 +469,12 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _buildTextField(_weightController, 'Weight (kg)', Icons.scale_outlined, isDark,
+                  child: _buildTextField(_weightController, 'Poids (kg)', Icons.scale_outlined, isDark,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildTextField(_heightController, 'Height (cm)', Icons.height, isDark,
+                  child: _buildTextField(_heightController, 'Taille (cm)', Icons.height, isDark,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 ),
               ],
@@ -486,12 +483,12 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _buildTextField(_chestController, 'Chest (cm)', Icons.straighten_outlined, isDark,
+                  child: _buildTextField(_chestController, 'Poitrine (cm)', Icons.straighten_outlined, isDark,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildTextField(_abdomenController, 'Abdomen (cm)', Icons.circle_outlined, isDark,
+                  child: _buildTextField(_abdomenController, 'Tour de taille (cm)', Icons.circle_outlined, isDark,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 ),
               ],
@@ -500,12 +497,12 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _buildTextField(_thighController, 'Thigh (cm)', Icons.accessibility_new_outlined, isDark,
+                  child: _buildTextField(_thighController, 'Cuisse (cm)', Icons.accessibility_new_outlined, isDark,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildTextField(_armController, 'Arm (cm)', Icons.fitness_center, isDark,
+                  child: _buildTextField(_armController, 'Bras (cm)', Icons.fitness_center, isDark,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 ),
               ],
@@ -598,7 +595,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
                   children: [
                     Text('♂', style: TextStyle(fontSize: 18, color: _selectedGender == 'male' ? Colors.white : subtextColor)),
                     const SizedBox(width: 6),
-                    Text('Male', style: TextStyle(fontWeight: FontWeight.w700, color: _selectedGender == 'male' ? Colors.white : subtextColor)),
+                    Text('Homme', style: TextStyle(fontWeight: FontWeight.w700, color: _selectedGender == 'male' ? Colors.white : subtextColor)),
                   ],
                 ),
               ),
@@ -619,7 +616,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
                   children: [
                     Text('♀', style: TextStyle(fontSize: 18, color: _selectedGender == 'female' ? Colors.white : subtextColor)),
                     const SizedBox(width: 6),
-                    Text('Female', style: TextStyle(fontWeight: FontWeight.w700, color: _selectedGender == 'female' ? Colors.white : subtextColor)),
+                    Text('Femme', style: TextStyle(fontWeight: FontWeight.w700, color: _selectedGender == 'female' ? Colors.white : subtextColor)),
                   ],
                 ),
               ),
@@ -656,7 +653,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
         prefixIcon: Icon(icon),
         filled: true,
       ),
-      validator: required ? (v) => (v == null || v.trim().isEmpty) ? 'Required' : null : null,
+      validator: required ? (v) => (v == null || v.trim().isEmpty) ? 'Requis' : null : null,
     );
   }
 
@@ -724,7 +721,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
                   children: [
                     Icon(Icons.check_circle_outline, size: 18, color: _isPaid ? Colors.white : subtextColor),
                     const SizedBox(width: 6),
-                    Text('Paid', style: TextStyle(fontWeight: FontWeight.w700, color: _isPaid ? Colors.white : subtextColor)),
+                    Text('Payé', style: TextStyle(fontWeight: FontWeight.w700, color: _isPaid ? Colors.white : subtextColor)),
                   ],
                 ),
               ),
@@ -745,7 +742,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
                   children: [
                     Icon(Icons.cancel_outlined, size: 18, color: !_isPaid ? Colors.white : subtextColor),
                     const SizedBox(width: 6),
-                    Text('Unpaid', style: TextStyle(fontWeight: FontWeight.w700, color: !_isPaid ? Colors.white : subtextColor)),
+                    Text('Impayé', style: TextStyle(fontWeight: FontWeight.w700, color: !_isPaid ? Colors.white : subtextColor)),
                   ],
                 ),
               ),
@@ -758,10 +755,10 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
 
   Widget _buildSubscriptionTypeSelector(bool isDark, Color cardColor, Color textColor) {
     final types = [
-      {'type': SubscriptionType.monthly, 'label': 'Monthly', 'icon': Icons.calendar_month},
-      {'type': SubscriptionType.quarterly, 'label': '3 Months', 'icon': Icons.date_range},
-      {'type': SubscriptionType.semester, 'label': '6 Months', 'icon': Icons.calendar_today},
-      {'type': SubscriptionType.annual, 'label': '1 Year', 'icon': Icons.calendar_month},
+      {'type': SubscriptionType.monthly, 'label': 'Mensuel', 'icon': Icons.calendar_month},
+      {'type': SubscriptionType.quarterly, 'label': '3 Mois', 'icon': Icons.date_range},
+      {'type': SubscriptionType.semester, 'label': '6 Mois', 'icon': Icons.calendar_today},
+      {'type': SubscriptionType.annual, 'label': '1 An', 'icon': Icons.calendar_month},
     ];
 
     return Column(
@@ -821,7 +818,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
           const Icon(Icons.event_available, color: Color(0xFF10B981), size: 20),
           const SizedBox(width: 10),
           Text(
-            'Subscription ends: ${endDate.day.toString().padLeft(2, '0')}/${endDate.month.toString().padLeft(2, '0')}/${endDate.year}',
+            'Abonnement se termine : ${endDate.day.toString().padLeft(2, '0')}/${endDate.month.toString().padLeft(2, '0')}/${endDate.year}',
             style: const TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.w700),
           ),
         ],
@@ -838,7 +835,7 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
         child: _isLoading
             ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
             : Text(
-                isEditing ? 'Update Athlete' : 'Add Athlete',
+                isEditing ? 'Modifier l\'athlète' : 'Ajouter l\'athlète',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
               ),
       ),
@@ -851,21 +848,21 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Delete Athlete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
-        content: const Text('Are you sure you want to delete this athlete?', style: TextStyle(color: Colors.white70)),
+        title: const Text('Supprimer l\'athlète', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+        content: const Text('Êtes-vous sûr de vouloir supprimer cet athlète ?', style: TextStyle(color: Colors.white70)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
           TextButton(
             onPressed: () {
               context.read<AthleteService>().deleteAthlete(int.parse(widget.athleteId!));
               Navigator.pop(context);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Athlete deleted'), backgroundColor: Color(0xFFEF4444)),
+                const SnackBar(content: Text('Athlète supprimé'), backgroundColor: Color(0xFFEF4444)),
               );
             },
             style: TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
-            child: const Text('Delete'),
+            child: const Text('Supprimer'),
           ),
         ],
       ),

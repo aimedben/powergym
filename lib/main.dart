@@ -29,16 +29,7 @@ void main() async {
     systemNavigationBarIconBrightness: Brightness.light,
   ));
 
-  // ─── Request storage permissions ───
-  try {
-    if (Platform.isAndroid) {
-      await _requestStoragePermission();
-    }
-  } catch (e) {
-    // Permission failed — continue with internal storage
-  }
-
-  // ─── Initialize database ───
+  // ─── Initialize database (always internal — no permission needed) ───
   final databaseService = DatabaseService();
 
   // Restore from external backup if it exists (first launch / reinstall)
@@ -66,13 +57,11 @@ void main() async {
     // Seed failed — continue without seed data
   }
 
-  // ─── Sync photos from Supabase ───
-  try {
-    final photoSync = PhotoSyncService();
-    await photoSync.syncPhotos();
-  } catch (e) {
-    // Photo sync failed — continue without photos
-  }
+  // ─── Request storage permission AFTER app starts (non-blocking) ───
+  // This ensures the dialog can show on all devices including Xiaomi/MIUI
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _requestStoragePermission();
+  });
 
   final athleteService = AthleteService(databaseService);
   await athleteService.loadAthletes();
@@ -108,21 +97,30 @@ void main() async {
   );
 }
 
-/// Request storage permissions for external Documents/powergym/ access
+/// Request storage permissions for external Documents/powergym/ backup
+/// - Android 11+: MANAGE_EXTERNAL_STORAGE requires settings redirect
+/// - Android 10 and below: standard permission dialog
+/// - App works perfectly without this permission (internal DB only)
 Future<void> _requestStoragePermission() async {
+  if (!Platform.isAndroid) return;
+
   try {
-    // Android 11+ (API 30+): MANAGE_EXTERNAL_STORAGE for full access
+    // Skip if already granted
     if (await Permission.manageExternalStorage.isGranted) return;
 
+    // On Android 11+ (API 30+), .request() may silently deny on some devices
+    // Try requesting first — some devices WILL show the dialog
     final status = await Permission.manageExternalStorage.request();
     if (status.isGranted) return;
 
-    // Fallback: try legacy storage permission
+    // If permanently denied or not available, try legacy permission (Android 9 and below)
     final legacyStatus = await Permission.storage.request();
     if (legacyStatus.isGranted) return;
 
-    // If still denied, app will use internal storage fallback
+    // On Xiaomi/MIUI and other devices, the dialog may not appear at all.
+    // The app continues to work with internal storage — no crash.
+    // External backup feature is simply unavailable without this permission.
   } catch (e) {
-    // Permission handling failed — continue with internal storage
+    // Permission handling failed — app works fine without external storage
   }
 }

@@ -20,8 +20,7 @@ class SportSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final titleColor = isDark ? Colors.white : SportColors.textLight;
+    final titleColor = Colors.white;
 
     return Row(
       children: [
@@ -68,7 +67,7 @@ class SportSectionHeader extends StatelessWidget {
                   subtitle!,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? Colors.white38 : SportColors.textLightMuted,
+                    color: Colors.white70,
                   ),
                 ),
               ],

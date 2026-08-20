@@ -120,7 +120,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
                   if (athletes.isEmpty && _searchQuery.isNotEmpty) {
                     return EmptyState(
                       icon: Icons.search_off,
-                      message: 'No athletes found for\n"$_searchQuery"',
+                      message: 'Aucun athlète trouvé pour\n"$_searchQuery"',
                     );
                   }
 
@@ -128,14 +128,14 @@ class _AthletesScreenState extends State<AthletesScreen> {
                     final label = _genderFilter == 'male' ? 'men' : 'women';
                     return EmptyState(
                       icon: _genderFilter == 'male' ? Icons.male : Icons.female,
-                      message: 'No $label found.',
+                      message: 'Aucun ${label} trouvé.',
                     );
                   }
 
                   if (athletes.isEmpty) {
                     return const EmptyState(
                       icon: Icons.people_outline,
-                      message: 'No athletes yet.\nTap + to add your first athlete!',
+                      message: 'Aucun athlète.\nAppuyez sur + pour ajouter le premier !',
                     );
                   }
 
@@ -181,10 +181,10 @@ class _AthletesScreenState extends State<AthletesScreen> {
                           athleteService.deleteAthlete(athlete.id!);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('${athlete.name} removed'),
+                              content: Text('${athlete.name} supprimé'),
                               backgroundColor: const Color(0xFF1E293B),
                               action: SnackBarAction(
-                                label: 'Undo',
+                                label: 'Annuler',
                                 textColor: SportColors.primary,
                                 onPressed: () {
                                   athleteService.addAthlete(athlete);
@@ -264,7 +264,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
               autofocus: true,
               style: TextStyle(color: textColor),
               decoration: InputDecoration(
-                hintText: 'Search athletes...',
+                hintText: 'Rechercher...',
                 border: InputBorder.none,
                 hintStyle: TextStyle(color: textColor.withValues(alpha: 0.35)),
               ),
@@ -273,7 +273,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
               },
             )
           : Text(
-              'ATHLETES',
+              'ATHLÈTES',
               style: TextStyle(
                 fontFamily: SportFonts.black,
                 fontSize: 20,
@@ -329,7 +329,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
       title: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: Text(
-          '${_selectedIds.length} SELECTED',
+          '${_selectedIds.length} SÉLECTIONNÉ(S)',
           key: ValueKey(_selectedIds.length),
           style: TextStyle(
             fontFamily: SportFonts.black,
@@ -355,7 +355,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
                 color: selectedColor,
               ),
               label: Text(
-                allSelected ? 'NONE' : 'ALL',
+                allSelected ? 'AUCUN' : 'TOUT',
                 style: TextStyle(
                   fontFamily: SportFonts.condensed,
                   fontSize: 12,
@@ -477,7 +477,7 @@ class _AthletesScreenState extends State<AthletesScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'All',
+                      'Tous',
                       style: TextStyle(
                         fontFamily: SportFonts.condensed,
                         fontSize: 12,
@@ -785,10 +785,10 @@ class _AthletesScreenState extends State<AthletesScreen> {
                 dropdownColor: const Color(0xFF1E293B),
                 style: const TextStyle(color: Colors.white),
                 items: const [
-                  DropdownMenuItem(value: SubscriptionType.monthly, child: Text('Monthly')),
-                  DropdownMenuItem(value: SubscriptionType.quarterly, child: Text('Quarterly')),
-                  DropdownMenuItem(value: SubscriptionType.semester, child: Text('Semester')),
-                  DropdownMenuItem(value: SubscriptionType.annual, child: Text('Annual')),
+                  DropdownMenuItem(value: SubscriptionType.monthly, child: Text('Mensuel')),
+                  DropdownMenuItem(value: SubscriptionType.quarterly, child: Text('3 Mois')),
+                  DropdownMenuItem(value: SubscriptionType.semester, child: Text('6 Mois')),
+                  DropdownMenuItem(value: SubscriptionType.annual, child: Text('1 An')),
                 ],
                 onChanged: (v) => setDialogState(() {
                   selectedType = v!;
@@ -870,22 +870,22 @@ class _AthletesScreenState extends State<AthletesScreen> {
         backgroundColor: const Color(0xFF1E293B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
-          'Delete Athlete',
+          'Supprimer l\'athlète',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
         content: Text(
-          'Are you sure you want to remove ${athlete.name}?',
+          'Voulez-vous supprimer ${athlete.name} ?',
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('Annuler'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: SportColors.red),
-            child: const Text('Delete'),
+            child: const Text('Supprimer'),
           ),
         ],
       ),

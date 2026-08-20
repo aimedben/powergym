@@ -42,9 +42,9 @@ class AthleteDetailScreen extends StatelessWidget {
         if (athlete == null) {
           return Scaffold(
             backgroundColor: _bg(context),
-            appBar: AppBar(title: const Text('Athlete')),
+            appBar: AppBar(title: const Text('Athlète')),
             body: Center(
-              child: Text('Athlete not found', style: TextStyle(color: _textSecondary(context))),
+              child: Text('Athlète introuvable', style: TextStyle(color: _textSecondary(context))),
             ),
           );
         }
@@ -223,7 +223,7 @@ class AthleteDetailScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              athlete.name,
+              '${athlete.firstName != null && athlete.firstName!.isNotEmpty ? '${athlete.firstName} ' : ''}${athlete.name}',
               style: TextStyle(
                 fontFamily: SportFonts.black,
                 fontSize: 28,
@@ -263,7 +263,7 @@ class AthleteDetailScreen extends StatelessWidget {
         _buildStatItem(
           context: context,
           icon: Icons.calendar_today_rounded,
-          label: 'Member Since',
+          label: 'Membre depuis',
           value: _formatDateShort(athlete.startDate),
           color: SportColors.primaryBright,
         ),
@@ -271,7 +271,7 @@ class AthleteDetailScreen extends StatelessWidget {
         _buildStatItem(
           context: context,
           icon: Icons.access_time_rounded,
-          label: 'Days Active',
+          label: 'Jours actifs',
           value: _getDaysActive(athlete.startDate),
           color: SportColors.cyan,
         ),
@@ -279,7 +279,7 @@ class AthleteDetailScreen extends StatelessWidget {
         _buildStatItem(
           context: context,
           icon: Icons.payments_rounded,
-          label: 'Price',
+          label: 'Prix',
           value: subscription != null ? '${subscription.price.toStringAsFixed(0)} DA' : 'N/A',
           color: SportColors.green,
         ),
@@ -396,7 +396,7 @@ class AthleteDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Subscription',
+                    'ABONNEMENT',
                       style: TextStyle(
                         fontFamily: SportFonts.condensed,
                         fontSize: 18,
@@ -422,11 +422,11 @@ class AthleteDetailScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Progress',
+                  'Progression',
                   style: TextStyle(fontSize: 12, color: _textSecondary(context)),
                 ),
                 Text(
-                  '$daysLeft days left',
+                  '$daysLeft jours restants',
                   style: TextStyle(
                     fontFamily: SportFonts.condensed,
                     fontSize: 12,
@@ -453,9 +453,9 @@ class AthleteDetailScreen extends StatelessWidget {
           // Dates Row
           Row(
             children: [
-              _buildDateInfo(context, 'Start', _formatDate(subscription.startDate)),
+              _buildDateInfo(context, 'Début', _formatDate(subscription.startDate)),
               const SizedBox(width: 16),
-              _buildDateInfo(context, 'End', _formatDate(subscription.endDate)),
+              _buildDateInfo(context, 'Fin', _formatDate(subscription.endDate)),
               const Spacer(),
               if (!isExpired)
                 Text(
@@ -489,7 +489,7 @@ class AthleteDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  subscription.isPaid ? 'Paid' : 'Unpaid',
+                  subscription.isPaid ? 'Payé' : 'Impayé',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -499,7 +499,7 @@ class AthleteDetailScreen extends StatelessWidget {
                 const Spacer(),
                 if (subscription.isPaid && subscription.paymentDate != null)
                   Text(
-                    'Paid on ${_formatDate(subscription.paymentDate!)}',
+                    'Payé le ${_formatDate(subscription.paymentDate!)}',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -508,7 +508,7 @@ class AthleteDetailScreen extends StatelessWidget {
                   )
                 else
                   Text(
-                    'Payment pending',
+                    'Paiement en attente',
                     style: TextStyle(fontSize: 12, color: _textMuted(context)),
                   ),
               ],
@@ -521,7 +521,7 @@ class AthleteDetailScreen extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: () => _showRenewDialog(context, subscription),
               icon: const Icon(Icons.edit_calendar, size: 20),
-              label: Text(isExpired ? 'Renew Subscription' : 'Edit Subscription'),
+              label: Text(isExpired ? 'Renouveler l\'abonnement' : 'Modifier l\'abonnement'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: isExpired ? SportColors.red : SportColors.primary,
                 foregroundColor: Colors.white,
@@ -580,7 +580,7 @@ class AthleteDetailScreen extends StatelessWidget {
               ),
               const SizedBox(width: 14),
               Text(
-                'Contact Information',
+                'INFORMATIONS DE CONTACT',
                 style: TextStyle(
                   fontFamily: SportFonts.condensed,
                   fontSize: 18,
@@ -595,35 +595,25 @@ class AthleteDetailScreen extends StatelessWidget {
             _buildContactRow(
               context: context,
               icon: Icons.phone_rounded,
-              label: 'Phone',
+              label: 'Téléphone',
               value: athlete.phone,
               color: SportColors.primaryBright,
             ),
-          if (athlete.phone.isNotEmpty && athlete.email != null && athlete.email!.isNotEmpty)
-            const SizedBox(height: 14),
-          if (athlete.email != null && athlete.email!.isNotEmpty)
-            _buildContactRow(
-              context: context,
-              icon: Icons.email_rounded,
-              label: 'Email',
-              value: athlete.email!,
-              color: SportColors.cyan,
-            ),
-          if ((athlete.email != null && athlete.email!.isNotEmpty) && athlete.birthDate != null)
+          if (athlete.phone.isNotEmpty && athlete.birthDate != null)
             const SizedBox(height: 14),
           if (athlete.birthDate != null)
             _buildContactRow(
               context: context,
               icon: Icons.cake_outlined,
-              label: 'Birth Date',
+              label: 'Date de naissance',
               value: _formatDate(athlete.birthDate!),
               color: SportColors.pink,
             ),
-          if (athlete.phone.isEmpty && (athlete.email == null || athlete.email!.isEmpty))
+          if (athlete.phone.isEmpty && athlete.birthDate == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Text(
-                'No contact information available',
+                'Aucune information de contact',
                 style: TextStyle(color: _textMuted(context), fontSize: 14),
               ),
             ),
@@ -707,7 +697,7 @@ class AthleteDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Body Measurements',
+                      'MESURES DU CORPS',
                       style: TextStyle(
                         fontFamily: SportFonts.condensed,
                         fontSize: 18,
@@ -718,8 +708,8 @@ class AthleteDetailScreen extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       measurement != null
-                          ? 'Last taken ${_formatDate(measurement.date)}'
-                          : 'No measurements recorded yet',
+                          ? 'Dernière mesure le ${_formatDate(measurement.date)}'
+                          : 'Aucune mesure enregistrée',
                       style: TextStyle(fontSize: 13, color: _textSecondary(context)),
                     ),
                   ],
@@ -743,21 +733,21 @@ class AthleteDetailScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                _buildMeasureItem(context, Icons.scale_outlined, 'Weight', '${_fmtNum(measurement.weight)} kg', SportColors.primaryBright),
+                _buildMeasureItem(context, Icons.scale_outlined, 'Poids', '${_fmtNum(measurement.weight)} kg', SportColors.primaryBright),
                 const SizedBox(width: 12),
-                _buildMeasureItem(context, Icons.height, 'Height', '${_fmtNum(measurement.height)} cm', SportColors.cyan),
+                _buildMeasureItem(context, Icons.height, 'Taille', '${_fmtNum(measurement.height)} cm', SportColors.cyan),
                 const SizedBox(width: 12),
-                _buildMeasureItem(context, Icons.straighten_outlined, 'Chest', '${_fmtNum(measurement.chest)} cm', SportColors.green),
+                _buildMeasureItem(context, Icons.straighten_outlined, 'Poitrine', '${_fmtNum(measurement.chest)} cm', SportColors.green),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildMeasureItem(context, Icons.circle_outlined, 'Abdomen', '${_fmtNum(measurement.abdomen)} cm', SportColors.amber),
+                _buildMeasureItem(context, Icons.circle_outlined, 'Tour de taille', '${_fmtNum(measurement.abdomen)} cm', SportColors.amber),
                 const SizedBox(width: 12),
-                _buildMeasureItem(context, Icons.accessibility_new_outlined, 'Thigh', '${_fmtNum(measurement.thigh)} cm', SportColors.pink),
+                _buildMeasureItem(context, Icons.accessibility_new_outlined, 'Cuisse', '${_fmtNum(measurement.thigh)} cm', SportColors.pink),
                 const SizedBox(width: 12),
-                _buildMeasureItem(context, Icons.fitness_center, 'Arm', '${_fmtNum(measurement.arm)} cm', SportColors.violet),
+                _buildMeasureItem(context, Icons.fitness_center, 'Bras', '${_fmtNum(measurement.arm)} cm', SportColors.violet),
               ],
             ),
             if (measurement.notes != null && measurement.notes!.isNotEmpty) ...[
@@ -790,7 +780,7 @@ class AthleteDetailScreen extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => _showMeasurementDialog(context, athleteService, athlete, measurement),
               icon: const Icon(Icons.add_chart_rounded, size: 18),
-              label: Text(measurement != null ? 'Update Measurements' : 'Add Measurements'),
+              label: Text(measurement != null ? 'Modifier les mesures' : 'Ajouter des mesures'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: SportColors.violet,
                 side: const BorderSide(color: SportColors.violet, width: 1.2),
@@ -908,7 +898,7 @@ class AthleteDetailScreen extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: () => Navigator.pushNamed(context, '/edit-athlete', arguments: athleteId),
             icon: const Icon(Icons.edit_rounded, size: 20),
-            label: const Text('Edit'),
+            label: const Text('Modifier'),
             style: ElevatedButton.styleFrom(
               backgroundColor: SportColors.primary,
               foregroundColor: Colors.white,
@@ -923,7 +913,7 @@ class AthleteDetailScreen extends StatelessWidget {
           child: OutlinedButton.icon(
             onPressed: () => _showDeleteConfirmation(context, athlete),
             icon: const Icon(Icons.delete_outline_rounded, size: 20),
-            label: const Text('Delete'),
+            label: const Text('Supprimer'),
             style: OutlinedButton.styleFrom(
               foregroundColor: SportColors.red,
               side: const BorderSide(color: SportColors.red, width: 1.5),
@@ -1007,7 +997,7 @@ class AthleteDetailScreen extends StatelessWidget {
             backgroundColor: _surface(context),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             title: Text(
-              current != null ? 'Update Measurements' : 'Add Measurements',
+              current != null ? 'Modifier les mesures' : 'Ajouter des mesures',
               style: TextStyle(color: _textPrimary(context), fontWeight: FontWeight.w800),
             ),
             content: SingleChildScrollView(
@@ -1031,7 +1021,7 @@ class AthleteDetailScreen extends StatelessWidget {
                             Icon(Icons.event_note_outlined, size: 18, color: SportColors.violet),
                             const SizedBox(width: 10),
                             Text(
-                              'Measurement Date',
+                              'Date de mesure',
                               style: TextStyle(color: _textSecondary(context), fontSize: 14),
                             ),
                             const Spacer(),
@@ -1050,25 +1040,25 @@ class AthleteDetailScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(child: field(weightController, 'Weight (kg)', Icons.scale_outlined)),
+                        Expanded(child: field(weightController, 'Poids (kg)', Icons.scale_outlined)),
                         const SizedBox(width: 8),
-                        Expanded(child: field(heightController, 'Height (cm)', Icons.height)),
+                        Expanded(child: field(heightController, 'Taille (cm)', Icons.height)),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(child: field(chestController, 'Chest (cm)', Icons.straighten_outlined)),
+                        Expanded(child: field(chestController, 'Poitrine (cm)', Icons.straighten_outlined)),
                         const SizedBox(width: 8),
-                        Expanded(child: field(abdomenController, 'Abdomen (cm)', Icons.circle_outlined)),
+                        Expanded(child: field(abdomenController, 'Tour de taille (cm)', Icons.circle_outlined)),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(child: field(thighController, 'Thigh (cm)', Icons.accessibility_new_outlined)),
+                        Expanded(child: field(thighController, 'Cuisse (cm)', Icons.accessibility_new_outlined)),
                         const SizedBox(width: 8),
-                        Expanded(child: field(armController, 'Arm (cm)', Icons.fitness_center)),
+                        Expanded(child: field(armController, 'Bras (cm)', Icons.fitness_center)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -1085,7 +1075,7 @@ class AthleteDetailScreen extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Cancel', style: TextStyle(color: _textSecondary(context))),
+                child: Text('Annuler', style: TextStyle(color: _textSecondary(context))),
               ),
               TextButton(
                 onPressed: () async {
@@ -1113,7 +1103,7 @@ class AthleteDetailScreen extends StatelessWidget {
                   backgroundColor: SportColors.violet.withValues(alpha: 0.15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Save', style: TextStyle(color: SportColors.violet, fontWeight: FontWeight.w800)),
+                child: const Text('Enregistrer', style: TextStyle(color: SportColors.violet, fontWeight: FontWeight.w800)),
               ),
             ],
           );
@@ -1146,7 +1136,7 @@ class AthleteDetailScreen extends StatelessWidget {
               child: const Icon(Icons.autorenew_rounded, color: Color(0xFF10B981), size: 22),
             ),
             const SizedBox(width: 12),
-            Text('Quick Renew', style: TextStyle(color: _textPrimary(context), fontWeight: FontWeight.w800, fontSize: 18)),
+            Text('Renouveler rapidement', style: TextStyle(color: _textPrimary(context), fontWeight: FontWeight.w800, fontSize: 18)),
           ],
         ),
         content: Column(
@@ -1154,7 +1144,7 @@ class AthleteDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Renew ${athlete.name}\'s subscription for 1 month?',
+              'Renouveler l\'abonnement de ${athlete.name} pour 1 mois ?',
               style: TextStyle(color: _textSecondary(context)),
             ),
             const SizedBox(height: 12),
@@ -1186,7 +1176,7 @@ class AthleteDetailScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: TextStyle(color: _textSecondary(context))),
+            child: Text('Annuler', style: TextStyle(color: _textSecondary(context))),
           ),
           TextButton(
             onPressed: () async {
@@ -1214,14 +1204,14 @@ class AthleteDetailScreen extends StatelessWidget {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('${athlete.name} renewed until ${newEnd.day}/${newEnd.month}/${newEnd.year}'),
+                    content: Text('${athlete.name} renouvelé jusqu\'au ${newEnd.day}/${newEnd.month}/${newEnd.year}'),
                     backgroundColor: const Color(0xFF10B981),
                   ),
                 );
               }
             },
             style: TextButton.styleFrom(foregroundColor: const Color(0xFF10B981)),
-            child: const Text('Renew', style: TextStyle(fontWeight: FontWeight.w800)),
+            child: const Text('Renouveler', style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ],
       ),
@@ -1236,17 +1226,17 @@ class AthleteDetailScreen extends StatelessWidget {
         backgroundColor: _surface(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          'Delete Athlete',
+          'Supprimer l\'athlète',
           style: TextStyle(color: _textPrimary(context), fontWeight: FontWeight.w800),
         ),
         content: Text(
-          'Are you sure you want to permanently delete ${athlete.name}? This action cannot be undone.',
+          'Êtes-vous sûr de vouloir supprimer ${athlete.name} ? Cette action est irréversible.',
           style: TextStyle(color: _textSecondary(context)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: _textSecondary(context))),
+            child: Text('Annuler', style: TextStyle(color: _textSecondary(context))),
           ),
           TextButton(
             onPressed: () {
@@ -1255,13 +1245,13 @@ class AthleteDetailScreen extends StatelessWidget {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('${athlete.name} has been deleted'),
+                  content: Text('${athlete.name} a été supprimé'),
                   backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFF64748B),
                 ),
               );
             },
             style: TextButton.styleFrom(foregroundColor: SportColors.red),
-            child: const Text('Delete'),
+            child: const Text('Supprimer'),
           ),
         ],
       ),
@@ -1323,7 +1313,7 @@ class AthleteDetailScreen extends StatelessWidget {
           backgroundColor: _surface(context),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text(
-            'Edit Subscription',
+            'Modifier l\'abonnement',
             style: TextStyle(color: _textPrimary(context), fontWeight: FontWeight.w800),
           ),
           content: Column(
@@ -1350,10 +1340,10 @@ class AthleteDetailScreen extends StatelessWidget {
                 dropdownColor: _surface(context),
                 style: TextStyle(color: _textPrimary(context)),
                 items: const [
-                  DropdownMenuItem(value: SubscriptionType.monthly, child: Text('Monthly')),
-                  DropdownMenuItem(value: SubscriptionType.quarterly, child: Text('Quarterly')),
-                  DropdownMenuItem(value: SubscriptionType.semester, child: Text('Semester')),
-                  DropdownMenuItem(value: SubscriptionType.annual, child: Text('Annual')),
+                  DropdownMenuItem(value: SubscriptionType.monthly, child: Text('Mensuel')),
+                  DropdownMenuItem(value: SubscriptionType.quarterly, child: Text('Trimestriel')),
+                  DropdownMenuItem(value: SubscriptionType.semester, child: Text('Semestriel')),
+                  DropdownMenuItem(value: SubscriptionType.annual, child: Text('Annuel')),
                 ],
                 onChanged: (v) => setDialogState(() {
                   selectedType = v!;
@@ -1377,7 +1367,7 @@ class AthleteDetailScreen extends StatelessWidget {
                       Icon(Icons.calendar_today, size: 18, color: SportColors.primary),
                       const SizedBox(width: 10),
                       Text(
-                        'Start Date',
+                        'Date de début',
                         style: TextStyle(color: _textSecondary(context), fontSize: 14),
                       ),
                       const Spacer(),
@@ -1407,7 +1397,7 @@ class AthleteDetailScreen extends StatelessWidget {
                     Icon(Icons.event_available, size: 18, color: SportColors.green),
                     const SizedBox(width: 10),
                     Text(
-                      'End Date: ${fmt(calcEnd(startDate, selectedType))}',
+                      'Date de fin: ${fmt(calcEnd(startDate, selectedType))}',
                       style: TextStyle(
                         color: SportColors.green,
                         fontWeight: FontWeight.w700,
@@ -1423,7 +1413,7 @@ class AthleteDetailScreen extends StatelessWidget {
                 keyboardType: TextInputType.number,
                 style: TextStyle(color: _textPrimary(context)),
                 decoration: InputDecoration(
-                  labelText: 'Price (DA)',
+                  labelText: 'Prix (DA)',
                   labelStyle: TextStyle(color: _textSecondary(context)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1444,7 +1434,7 @@ class AthleteDetailScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: _textSecondary(context))),
+              child: Text('Annuler', style: TextStyle(color: _textSecondary(context))),
             ),
             TextButton(
               onPressed: () async {
@@ -1473,7 +1463,7 @@ class AthleteDetailScreen extends StatelessWidget {
                 backgroundColor: SportColors.green.withValues(alpha: 0.15),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: const Text('Save', style: TextStyle(color: SportColors.green, fontWeight: FontWeight.w800)),
+              child: const Text('Enregistrer', style: TextStyle(color: SportColors.green, fontWeight: FontWeight.w800)),
             ),
           ],
         );
@@ -1499,7 +1489,7 @@ class AthleteDetailScreen extends StatelessWidget {
 
   String _getDaysActive(DateTime startDate) {
     final days = DateTime.now().difference(startDate).inDays;
-    return '$days days';
+    return '$days jours';
   }
 
   double _getSubscriptionProgress(Subscription subscription) {
@@ -1532,11 +1522,11 @@ class AthleteDetailScreen extends StatelessWidget {
 
   String _getSubscriptionTypeLabel(SubscriptionType type) {
     switch (type) {
-      case SubscriptionType.monthly: return 'Monthly Plan';
-      case SubscriptionType.quarterly: return 'Quarterly Plan';
-      case SubscriptionType.semester: return 'Semester Plan';
-      case SubscriptionType.annual: return 'Annual Plan';
-      case SubscriptionType.custom: return 'Custom Plan';
+      case SubscriptionType.monthly: return 'Forfait Mensuel';
+      case SubscriptionType.quarterly: return 'Forfait Trimestriel';
+      case SubscriptionType.semester: return 'Forfait Semestriel';
+      case SubscriptionType.annual: return 'Forfait Annuel';
+      case SubscriptionType.custom: return 'Forfait Personnalisé';
     }
   }
 

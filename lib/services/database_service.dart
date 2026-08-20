@@ -10,29 +10,41 @@ class DatabaseService {
   static const int dbVersion = 3;
   static final DatabaseService _instance = DatabaseService._internal();
   static Database? _database;
-  static String? _externalDbPath;
 
   DatabaseService._internal();
 
   factory DatabaseService() => _instance;
 
-  /// Get the external Documents/powergym/ path
-  Future<String> _getExternalDbPath() async {
-    if (_externalDbPath != null) return _externalDbPath!;
-
-    // Primary: /storage/emulated/0/Documents/powergym/powergymapp.db
-    final docsDir = Directory('/storage/emulated/0/Documents/powergym');
-    if (!await docsDir.exists()) {
-      await docsDir.create(recursive: true);
-    }
-    _externalDbPath = join(docsDir.path, 'powergymapp.db');
-    return _externalDbPath!;
+  /// Always use sqflite's internal databases path — no permission needed
+  Future<String> _getDbPath() async {
+    return await getDatabasesPath();
   }
 
-  /// Get the internal fallback path (app-private)
-  Future<String> _getInternalDbPath() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return join(dir.path, 'powergymapp.db');
+  /// External Documents/powergym/ path (optional, for backup only)
+  Future<String?> _getExternalDbPath() async {
+    try {
+      final docsDir = Directory('/storage/emulated/0/Documents/powergym');
+      if (!await docsDir.exists()) {
+        await docsDir.create(recursive: true);
+      }
+      return join(docsDir.path, 'powergymapp.db');
+    } catch (e) {
+      return null; // No external storage access
+    }
+  }
+
+  /// Check if external storage is writable
+  Future<bool> get hasExternalStorage async {
+    final extPath = await _getExternalDbPath();
+    if (extPath == null) return false;
+    try {
+      final testFile = File('$extPath.test');
+      await testFile.writeAsString('test');
+      await testFile.delete();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<Database> get database async {
@@ -42,96 +54,109 @@ class DatabaseService {
   }
 
   Future<Database> _initDatabase() async {
-    String dbPath;
+    final dbDir = await _getDbPath();
+    final dbPath = join(dbDir, 'powergymapp.db');
 
+    // On first launch: check if an external DB exists from a previous install
     try {
-      // Try to use external storage path
-      dbPath = await _getExternalDbPath();
+      final extPath = await _getExternalDbPath();
+      if (extPath != null) {
+        final externalFile = File(extPath);
+        final internalFile = File(dbPath);
+
+        if (await externalFile.exists() && !await internalFile.exists()) {
+          // Copy external → temp to validate
+          final tempPath = '$dbPath.tmp';
+          final tempFile = File(tempPath);
+          await externalFile.copy(tempPath);
+
+          Database? tempDb;
+          try {
+            tempDb = await openDatabase(tempPath, version: dbVersion, readOnly: true);
+            await tempDb.close();
+          } catch (e) {
+            await tempFile.delete();
+            // Corrupt — start fresh
+            return await openDatabase(
+              dbPath,
+              version: dbVersion,
+              onCreate: _onCreate,
+              onUpgrade: _onUpgrade,
+            );
+          }
+
+          // Valid — replace internal
+          if (await internalFile.exists()) await internalFile.delete();
+          await tempFile.rename(dbPath);
+        }
+      }
     } catch (e) {
-      // Fallback to internal storage
-      dbPath = await _getInternalDbPath();
+      // Restore failed — continue with fresh DB
     }
 
-    // Check if external file exists (data from previous install / sync)
-    final externalFile = File(dbPath);
-    final internalPath = await _getInternalDbPath();
-    final internalFile = File(internalPath);
-
-    if (await externalFile.exists() && !await internalFile.exists()) {
-      // External DB exists but internal doesn't â†’ copy from external (restore)
-      await internalFile.writeAsBytes(await externalFile.readAsBytes());
-    }
-
-    // Open from internal (safer for sqflite), then sync externally on changes
+    // Always open from internal storage (no permission issues)
     return await openDatabase(
-      internalPath,
+      dbPath,
       version: dbVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
   }
 
-  /// Sync database file to external Documents/powergym/ for backup
+  /// Sync database file to external Documents/powergym/ for backup (best-effort)
   Future<void> syncToExternal() async {
     try {
-      final internalPath = await _getInternalDbPath();
-      final externalPath = await _getExternalDbPath();
+      final extPath = await _getExternalDbPath();
+      if (extPath == null) return; // No external access
+
+      final db = _database;
+      if (db == null) return;
+
+      // Use sqflite's built-in path
+      final internalPath = join(await _getDbPath(), 'powergymapp.db');
       final internalFile = File(internalPath);
-      final externalFile = File(externalPath);
 
       if (await internalFile.exists()) {
-        // Close DB briefly to copy safely
-        await internalFile.copy(externalPath);
+        await internalFile.copy(extPath);
       }
     } catch (e) {
-      // Silently fail â€” external sync is best-effort
+      // External sync is best-effort — never block
     }
   }
 
-  /// Load database from external path (on app launch restore)
+  /// Restore database from external path (best-effort)
   Future<void> restoreFromExternal() async {
     try {
-      final internalPath = await _getInternalDbPath();
-      final externalPath = await _getExternalDbPath();
+      final extPath = await _getExternalDbPath();
+      if (extPath == null) return;
+
+      final internalPath = join(await _getDbPath(), 'powergymapp.db');
       final internalFile = File(internalPath);
-      final externalFile = File(externalPath);
+      final externalFile = File(extPath);
 
       if (await externalFile.exists()) {
-        // Copy external â†’ temp file first to validate
         final tempPath = '$internalPath.tmp';
         final tempFile = File(tempPath);
         await externalFile.copy(tempPath);
 
-        // Try opening the temp file to validate it's a real DB
         Database? tempDb;
         try {
           tempDb = await openDatabase(tempPath, version: dbVersion, readOnly: true);
           await tempDb.close();
         } catch (e) {
-          // Temp file is corrupt â€” delete it, keep existing internal DB
           await tempFile.delete();
           return;
         }
 
-        // Valid â€” close current DB, replace internal with temp
         final db = _database;
         if (db != null) await db.close();
         _database = null;
 
-        // Delete old internal, rename temp to internal
         if (await internalFile.exists()) await internalFile.delete();
         await tempFile.rename(internalPath);
-
-        // Re-open
-        _database = await openDatabase(
-          internalPath,
-          version: dbVersion,
-          onCreate: _onCreate,
-          onUpgrade: _onUpgrade,
-        );
       }
     } catch (e) {
-      // Silently fail â€” keep existing internal DB or create fresh
+      // Restore failed — keep existing DB
     }
   }
 
@@ -220,7 +245,7 @@ class DatabaseService {
     await db.execute('CREATE INDEX idx_athletes_is_active ON athletes(is_active)');
   }
 
-  // â”€â”€â”€ Athlete CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Athlete CRUD ───────────────────
 
   Future<int> insertAthlete(Athlete athlete) async {
     final db = await database;
@@ -262,175 +287,149 @@ class DatabaseService {
 
   Future<void> updateAthletePhoto(int athleteId, String photoPath) async {
     final db = await database;
-    await db.update(
-      'athletes',
-      {'photo_path': photoPath},
-      where: 'id = ?',
-      whereArgs: [athleteId],
-    );
+    await db.update('athletes', {'photo_path': photoPath}, where: 'id = ?', whereArgs: [athleteId]);
+  }
+
+  Future<void> deleteAthlete(int id) async {
+    final db = await database;
+    await db.delete('athletes', where: 'id = ?', whereArgs: [id]);
     await syncToExternal();
   }
 
-  Future<int> deleteAthlete(int id) async {
-    final db = await database;
-    final result = await db.delete('athletes', where: 'id = ?', whereArgs: [id]);
-    await syncToExternal();
-    return result;
-  }
+  // ─── Subscription CRUD ───────────────────
 
-  // â”€â”€â”€ Subscription CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-  Future<int> insertSubscription(Subscription subscription) async {
+  Future<int> insertSubscription(Subscription sub) async {
     final db = await database;
-    final id = await db.insert('subscriptions', subscription.toMap());
+    final id = await db.insert('subscriptions', sub.toMap());
     await syncToExternal();
     return id;
   }
 
+  Future<List<Subscription>> getSubscriptionsForAthlete(int athleteId) async {
+    final db = await database;
+    final maps = await db.query('subscriptions', where: 'athlete_id = ?', whereArgs: [athleteId], orderBy: 'end_date DESC');
+    return maps.map((m) => Subscription.fromMap(m)).toList();
+  }
+
+  /// Alias used by athlete_service
   Future<List<Subscription>> getSubscriptionsByAthleteId(int athleteId) async {
-    final db = await database;
-    final maps = await db.query('subscriptions', where: 'athlete_id = ?', whereArgs: [athleteId], orderBy: 'start_date DESC');
-    return maps.map((m) => Subscription.fromMap(m)).toList();
+    return getSubscriptionsForAthlete(athleteId);
   }
 
-  Future<List<Subscription>> getActiveSubscriptions() async {
+  Future<Subscription?> getLatestSubscription(int athleteId) async {
     final db = await database;
-    final now = DateTime.now().toIso8601String();
-    final maps = await db.query('subscriptions', where: 'end_date >= ?', whereArgs: [now], orderBy: 'end_date ASC');
-    return maps.map((m) => Subscription.fromMap(m)).toList();
-  }
-
-  Future<List<Subscription>> getExpiredSubscriptions() async {
-    final db = await database;
-    final now = DateTime.now().toIso8601String();
-    final maps = await db.query('subscriptions', where: 'end_date < ?', whereArgs: [now], orderBy: 'end_date DESC');
-    return maps.map((m) => Subscription.fromMap(m)).toList();
-  }
-
-  Future<List<Subscription>> getExpiringWithinDays(int days) async {
-    final db = await database;
-    final now = DateTime.now();
-    final deadline = now.add(Duration(days: days)).toIso8601String();
-    final nowStr = now.toIso8601String();
-    final maps = await db.query('subscriptions', where: 'end_date >= ? AND end_date <= ?', whereArgs: [nowStr, deadline], orderBy: 'end_date ASC');
-    return maps.map((m) => Subscription.fromMap(m)).toList();
-  }
-
-  Future<List<Subscription>> getUnpaidSubscriptions() async {
-    final db = await database;
-    final maps = await db.query('subscriptions', where: 'is_paid = 0', orderBy: 'end_date ASC');
-    return maps.map((m) => Subscription.fromMap(m)).toList();
+    final maps = await db.query('subscriptions', where: 'athlete_id = ?', whereArgs: [athleteId], orderBy: 'end_date DESC', limit: 1);
+    if (maps.isEmpty) return null;
+    return Subscription.fromMap(maps.first);
   }
 
   Future<List<Subscription>> getAllSubscriptions() async {
     final db = await database;
-    final maps = await db.query('subscriptions', orderBy: 'start_date DESC');
+    final maps = await db.query('subscriptions', orderBy: 'end_date DESC');
     return maps.map((m) => Subscription.fromMap(m)).toList();
   }
 
-  Future<int> updateSubscription(Subscription subscription) async {
+  Future<int> updateSubscription(Subscription sub) async {
     final db = await database;
-    final result = await db.update('subscriptions', subscription.toMap(), where: 'id = ?', whereArgs: [subscription.id]);
+    final result = await db.update('subscriptions', sub.toMap(), where: 'id = ?', whereArgs: [sub.id]);
     await syncToExternal();
     return result;
   }
 
-  Future<int> deleteSubscription(int id) async {
+  Future<void> deleteSubscription(int id) async {
     final db = await database;
-    final result = await db.delete('subscriptions', where: 'id = ?', whereArgs: [id]);
+    await db.delete('subscriptions', where: 'id = ?', whereArgs: [id]);
     await syncToExternal();
-    return result;
   }
 
-  // â”€â”€â”€ Combined Queries â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Body Measurements CRUD ───────────────────
 
-  Future<Map<String, dynamic>?> getAthleteWithSubscription(int athleteId) async {
-    final athlete = await getAthleteById(athleteId);
-    if (athlete == null) return null;
-    final subscriptions = await getSubscriptionsByAthleteId(athleteId);
-    final activeSubscription = subscriptions.isNotEmpty
-        ? subscriptions.firstWhere((s) => s.isActive || s.isExpiringSoon, orElse: () => subscriptions.first)
-        : null;
-    return {'athlete': athlete, 'subscriptions': subscriptions, 'activeSubscription': activeSubscription};
-  }
-
-  Future<List<Map<String, dynamic>>> getAllAthletesWithSubscriptions() async {
+  Future<int> insertBodyMeasurement(BodyMeasurement m) async {
     final db = await database;
-    final results = await db.rawQuery('''
-      SELECT a.*, s.id as sub_id, s.athlete_id as sub_athlete_id, s.type as sub_type,
-        s.start_date as sub_start_date, s.end_date as sub_end_date, s.price as sub_price,
-        s.is_paid as sub_is_paid, s.payment_date as sub_payment_date, s.notes as sub_notes
-      FROM athletes a
-      LEFT JOIN (SELECT *, ROW_NUMBER() OVER (PARTITION BY athlete_id ORDER BY end_date DESC) as rn FROM subscriptions) s
-        ON a.id = s.athlete_id AND s.rn = 1
-      ORDER BY a.name ASC
-    ''');
-    return results.map((row) {
-      final athlete = Athlete.fromMap(row);
-      Subscription? latestSubscription;
-      if (row['sub_id'] != null) {
-        latestSubscription = Subscription.fromMap({
-          'id': row['sub_id'], 'athlete_id': row['sub_athlete_id'], 'type': row['sub_type'],
-          'start_date': row['sub_start_date'], 'end_date': row['sub_end_date'],
-          'price': row['sub_price'], 'is_paid': row['sub_is_paid'],
-          'payment_date': row['sub_payment_date'], 'notes': row['sub_notes'],
-        });
-      }
-      return {'athlete': athlete, 'latestSubscription': latestSubscription};
-    }).toList();
-  }
-
-  // ─── Body Measurements CRUD ────────────────────────────────────
-
-  Future<int> insertBodyMeasurement(BodyMeasurement measurement) async {
-    final db = await database;
-    final id = await db.insert('body_measurements', measurement.toMap());
+    final id = await db.insert('body_measurements', m.toMap());
     await syncToExternal();
     return id;
   }
 
-  Future<List<BodyMeasurement>> getBodyMeasurementsByAthleteId(int athleteId) async {
+  Future<List<BodyMeasurement>> getMeasurementsForAthlete(int athleteId) async {
     final db = await database;
-    final maps = await db.query(
-      'body_measurements',
-      where: 'athlete_id = ?',
-      whereArgs: [athleteId],
-      orderBy: 'date DESC',
-    );
+    final maps = await db.query('body_measurements', where: 'athlete_id = ?', whereArgs: [athleteId], orderBy: 'date DESC');
     return maps.map((m) => BodyMeasurement.fromMap(m)).toList();
   }
 
-  Future<int> updateBodyMeasurement(BodyMeasurement measurement) async {
+  /// Alias used by athlete_service / notification_service
+  Future<List<BodyMeasurement>> getBodyMeasurementsByAthleteId(int athleteId) async {
+    return getMeasurementsForAthlete(athleteId);
+  }
+
+  /// Update an existing body measurement
+  Future<void> updateBodyMeasurement(BodyMeasurement measurement) async {
     final db = await database;
-    final result = await db.update(
-      'body_measurements',
-      measurement.toMap(),
-      where: 'id = ?',
-      whereArgs: [measurement.id],
-    );
+    await db.update('body_measurements', measurement.toMap(), where: 'id = ?', whereArgs: [measurement.id]);
     await syncToExternal();
+  }
+
+  /// Get all athletes with their latest subscription
+  Future<List<Map<String, dynamic>>> getAllAthletesWithSubscriptions() async {
+    final db = await database;
+    final athletes = await getAllAthletes();
+    final result = <Map<String, dynamic>>[];
+    for (final athlete in athletes) {
+      final latestSub = athlete.id != null ? await getLatestSubscription(athlete.id!) : null;
+      result.add({
+        'athlete': athlete,
+        'latestSubscription': latestSub,
+      });
+    }
     return result;
   }
 
-  Future<int> deleteBodyMeasurement(int id) async {
+  Future<void> deleteBodyMeasurement(int id) async {
     final db = await database;
-    final result = await db.delete('body_measurements', where: 'id = ?', whereArgs: [id]);
+    await db.delete('body_measurements', where: 'id = ?', whereArgs: [id]);
     await syncToExternal();
-    return result;
   }
+
+  // ─── Stats ───────────────────
+
+  Future<Map<String, int>> getStats() async {
+    final db = await database;
+    final now = DateTime.now().toIso8601String();
+    final total = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM athletes')) ?? 0;
+    final active = Sqflite.firstIntValue(await db.rawQuery(
+      'SELECT COUNT(DISTINCT a.id) FROM athletes a JOIN subscriptions s ON a.id = s.athlete_id WHERE s.end_date >= ? AND a.is_active = 1',
+      [now],
+    )) ?? 0;
+    final expired = Sqflite.firstIntValue(await db.rawQuery(
+      'SELECT COUNT(DISTINCT a.id) FROM athletes a JOIN subscriptions s ON a.id = s.athlete_id WHERE s.end_date < ? AND a.is_active = 1',
+      [now],
+    )) ?? 0;
+    return {'total': total, 'active': active, 'expired': expired, 'expiring': 0};
+  }
+
+  Future<double> getTotalRevenue() async {
+    final db = await database;
+    final result = await db.rawQuery('SELECT COALESCE(SUM(price), 0) as total FROM subscriptions WHERE is_paid = 1');
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
+  }
+
+  Future<double> getMonthlyRevenue() async {
+    final db = await database;
+    final now = DateTime.now();
+    final monthStart = DateTime(now.year, now.month, 1).toIso8601String();
+    final monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59).toIso8601String();
+    final result = await db.rawQuery(
+      'SELECT COALESCE(SUM(price), 0) as total FROM subscriptions WHERE is_paid = 1 AND payment_date >= ? AND payment_date <= ?',
+      [monthStart, monthEnd],
+    );
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
+  }
+
+  // ─── Price Fix ───────────────────
 
   Future<void> fixPrices3000To1500() async {
     final db = await database;
-    final count = await db.rawUpdate(
-      "UPDATE subscriptions SET price = 1500 WHERE price = 3000",
-    );
-    if (count > 0) await syncToExternal();
-  }
-
-  Future<void> close() async {
-    final db = await database;
+    await db.rawUpdate('UPDATE subscriptions SET price = 1500.0 WHERE price = 3000.0');
     await syncToExternal();
-    await db.close();
-    _database = null;
   }
 }

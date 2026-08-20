@@ -18,10 +18,9 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? SportColors.cardDark : Colors.white;
-    final labelColor = isDark ? Colors.white38 : SportColors.textLightMuted;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.06);
+    final cardBg = Colors.black.withValues(alpha: 0.45);
+    final labelColor = Colors.white70;
+    final borderColor = Colors.white.withValues(alpha: 0.10);
 
     return Container(
       clipBehavior: Clip.antiAlias,
@@ -31,7 +30,7 @@ class StatCard extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: isDark ? 0.10 : 0.06),
+            color: color.withValues(alpha: 0.10),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

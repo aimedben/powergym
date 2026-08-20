@@ -122,7 +122,7 @@ class AthleteCard extends StatelessWidget {
                             Icon(Icons.phone, size: 12, color: isDark ? Colors.white24 : const Color(0xFF94A3B8)),
                             const SizedBox(width: 5),
                             Text(
-                              athlete.phone.isNotEmpty ? athlete.phone : 'No phone',
+                              athlete.phone.isNotEmpty ? athlete.phone : 'Pas de téléphone',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark ? Colors.white38 : SportColors.textLightMuted,

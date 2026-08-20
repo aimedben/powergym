@@ -123,16 +123,16 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Choose Photo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              const Text('Choisir une photo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.camera_alt, color: Color(0xFF3B82F6)),
-                title: const Text('Camera'),
+                title: const Text('Caméra'),
                 onTap: () => Navigator.pop(context, ImageSource.camera),
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library, color: Color(0xFF10B981)),
-                title: const Text('Gallery'),
+                title: const Text('Galerie'),
                 onTap: () => Navigator.pop(context, ImageSource.gallery),
               ),
             ],
@@ -172,7 +172,7 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'PROFILE',
+          'PROFIL',
           style: TextStyle(
             fontFamily: SportFonts.black,
             fontSize: 20,
@@ -186,7 +186,7 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
           if (_isEditing)
             TextButton(
               onPressed: _saveProfile,
-              child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w700, color: SportColors.green)),
+              child: const Text('Enregistrer', style: TextStyle(fontWeight: FontWeight.w700, color: SportColors.green)),
             )
           else
             IconButton(
@@ -295,7 +295,7 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
 
             _buildInfoCard(
               icon: Icons.person,
-              label: 'Full Name',
+              label: 'Nom complet',
               controller: _nameController,
               isEditing: _isEditing,
               cardColor: cardColor,
@@ -306,7 +306,7 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
             const SizedBox(height: 10),
             _buildInfoCard(
               icon: Icons.business,
-              label: 'Gym Name',
+              label: 'Nom de la salle',
               controller: _gymController,
               isEditing: _isEditing,
               cardColor: cardColor,

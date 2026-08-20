@@ -62,29 +62,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset('assets/dash.jpg', fit: BoxFit.cover),
-          ),
-          Positioned.fill(
-            child: Container(
-              color: isDark ? SportColors.bgDark : SportColors.bgLight,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        // Si on n'est pas sur l'onglet Accueil, y retourner
+        if (_currentIndex != 0) {
+          setState(() => _currentIndex = 0);
+        }
+        // Si déjà sur Accueil → ne rien faire (ne jamais quitter l'app)
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset('assets/dash.jpg', fit: BoxFit.cover),
             ),
-          ),
-          IndexedStack(
-            index: _currentIndex,
-            children: [
-              _buildDashboardContent(),
-              const _AthletesTab(),
-              const _SubscriptionsTab(),
-              _buildSettingsTab(),
-            ],
-          ),
-        ],
+            IndexedStack(
+              index: _currentIndex,
+              children: [
+                _buildDashboardContent(),
+                const _AthletesTab(),
+                const _SubscriptionsTab(),
+                _buildSettingsTab(),
+              ],
+            ),
+          ],
+        ),
+        bottomNavigationBar: _buildBottomNav(),
       ),
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
@@ -108,7 +114,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _buildStatsGrid(stats),
                     const SizedBox(height: 28),
                     const SportSectionHeader(
-                      title: 'Quick Actions',
+                      title: 'Actions Rapides',
                       icon: Icons.bolt,
                       accentColor: SportColors.cyan,
                     ),
@@ -127,11 +133,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildWelcomeHeader() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : SportColors.textLight;
-    final subColor = isDark ? Colors.white38 : SportColors.textLightMuted;
-    final iconBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9);
-    final iconColor = isDark ? Colors.white60 : SportColors.textLightMuted;
+    final textColor = Colors.white;
+    final subColor = Colors.white70;
+    final iconBg = Colors.white.withValues(alpha: 0.10);
+    final iconColor = Colors.white70;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,9 +196,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: iconBg,
+                  color: Colors.white.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
                 ),
                 child: Stack(
                   clipBehavior: Clip.none,
@@ -235,9 +240,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       childAspectRatio: 2.2,
       children: [
         StatCard(icon: Icons.people, value: stats['total'] ?? 0, label: 'Total', color: SportColors.primaryBright),
-        StatCard(icon: Icons.check_circle, value: stats['active'] ?? 0, label: 'Active', color: SportColors.green),
-        StatCard(icon: Icons.warning, value: stats['expiring'] ?? 0, label: 'Expiring', color: SportColors.amber),
-        StatCard(icon: Icons.cancel, value: stats['expired'] ?? 0, label: 'Expired', color: SportColors.red),
+        StatCard(icon: Icons.check_circle, value: stats['active'] ?? 0, label: 'Actifs', color: SportColors.green),
+        StatCard(icon: Icons.warning, value: stats['expiring'] ?? 0, label: 'Expirants', color: SportColors.amber),
+        StatCard(icon: Icons.cancel, value: stats['expired'] ?? 0, label: 'Expirés', color: SportColors.red),
       ],
     );
   }
@@ -247,7 +252,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         Expanded(
           child: SportButton(
-            label: 'ADD ATHLETE',
+            label: 'AJOUTER ATHLÈTE',
             icon: Icons.person_add,
             gradient: sportPrimaryGradient,
             height: 50,
@@ -257,7 +262,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: SportButton(
-            label: 'VIEW ALL',
+            label: 'VOIR TOUS',
             icon: Icons.people,
             gradient: const LinearGradient(
               begin: Alignment.centerLeft,
@@ -274,9 +279,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildExpiringSoon(AthleteService athleteService) {
     final now = DateTime.now();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : SportColors.textLight;
-    final subColor = isDark ? Colors.white38 : SportColors.textLightMuted;
+    final textColor = Colors.white;
+    final subColor = Colors.white70;
     
     // Collect athletes with active or expiring subscriptions, sorted by urgency
     final expiringAthletes = <MapEntry<Athlete, Subscription>>[];
@@ -300,13 +304,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SportSectionHeader(
-          title: 'Expiring Soon',
+          title: 'Expirant Bientôt',
           icon: Icons.warning_amber_rounded,
           accentColor: const Color(0xFFF97316),
           trailing: expiringAthletes.isNotEmpty
               ? TextButton(
                   onPressed: () => setState(() => _currentIndex = 1),
-                  child: const Text('SEE ALL'),
+                  child: const Text('VOIR TOUT'),
                 )
               : null,
         ),
@@ -314,7 +318,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (displayList.isEmpty)
           const EmptyState(
             icon: Icons.check_circle_outline,
-            message: 'No subscriptions expiring soon.',
+            message: 'Aucun abonnement expirant bientôt.',
           )
         else
           ...displayList.map((entry) {
@@ -327,13 +331,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             final String statusText;
             if (daysLeft <= 3) {
               statusColor = const Color(0xFFEF4444); // red
-              statusText = daysLeft == 0 ? "Expires today" : "$daysLeft day${daysLeft > 1 ? 's' : ''} left";
+              statusText = daysLeft == 0 ? "Expire aujourd'hui" : "$daysLeft jour${daysLeft > 1 ? 's' : ''} restant${daysLeft > 1 ? 's' : ''}";
             } else if (daysLeft <= 7) {
               statusColor = const Color(0xFFF97316); // orange
-              statusText = "$daysLeft days left";
+              statusText = "$daysLeft jours restants";
             } else {
               statusColor = const Color(0xFFFBBF24); // yellow
-              statusText = "$daysLeft days left";
+              statusText = "$daysLeft jours restants";
             }
             
             final subscriptionLabel = sub.type.name[0].toUpperCase() + sub.type.name.substring(1);
@@ -352,7 +356,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      color: Colors.black.withValues(alpha: 0.45),
                       border: Border.all(
                         color: statusColor.withValues(alpha: 0.15),
                         width: 1,
@@ -441,8 +445,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildSettingsTab() {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        final textColor = isDark ? Colors.white : SportColors.textLight;
+        final textColor = Colors.white;
 
         return SafeArea(
           child: Padding(
@@ -452,7 +455,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 const SizedBox(height: 40),
                 Text(
-                  'SETTINGS',
+                  'PARAMÈTRES',
                   style: TextStyle(
                     fontFamily: SportFonts.black,
                     fontSize: 28,
@@ -462,11 +465,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                _SettingsItem(icon: Icons.person, title: 'Coach Profile', subtitle: 'Edit your profile', color: SportColors.primaryBright, onTap: () => Navigator.pushNamed(context, '/coach-profile')),
+                _SettingsItem(icon: Icons.person, title: 'Profil Coach', subtitle: 'Modifier votre profil', color: SportColors.primaryBright, onTap: () => Navigator.pushNamed(context, '/coach-profile')),
                 _SettingsItem(
                   icon: themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,
-                  title: 'Theme',
-                  subtitle: themeProvider.isDark ? 'Dark Mode' : 'Light Mode',
+                  title: 'Thème',
+                  subtitle: themeProvider.isDark ? 'Mode Sombre' : 'Mode Clair',
                   color: SportColors.violet,
                   trailing: Switch(
                     value: themeProvider.isDark,
@@ -475,10 +478,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   onTap: () => themeProvider.toggleTheme(),
                 ),
-                _SettingsItem(icon: Icons.business, title: 'Gym Name', subtitle: _gymName, color: SportColors.cyan, onTap: () => _showEditGymDialog()),
+                _SettingsItem(icon: Icons.business, title: 'Nom de la salle', subtitle: _gymName, color: SportColors.cyan, onTap: () => _showEditGymDialog()),
                 _SettingsItem(icon: Icons.attach_money, title: 'Tarifs', subtitle: 'Personnaliser les prix', color: const Color(0xFF10B981), onTap: () => Navigator.pushNamed(context, '/pricing')),
-                _SettingsItem(icon: Icons.notifications, title: 'Notifications', subtitle: 'Manage alerts', color: SportColors.green, onTap: () => Navigator.pushNamed(context, '/notifications')),
-                _SettingsItem(icon: Icons.info_outline, title: 'About', subtitle: 'Version 1.0.0', color: SportColors.amber, onTap: () {}),
+                _SettingsItem(icon: Icons.notifications, title: 'Notifications', subtitle: 'Gérer les alertes', color: SportColors.green, onTap: () => Navigator.pushNamed(context, '/notifications')),
+                _SettingsItem(icon: Icons.info_outline, title: 'À propos', subtitle: 'Version 1.0.0', color: SportColors.amber, onTap: () {}),
               ],
             ),
           ),
@@ -497,7 +500,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          'Edit Gym Name',
+          'Modifier le nom de la salle',
           style: TextStyle(
             color: isDark ? Colors.white : const Color(0xFF0F172A),
             fontWeight: FontWeight.w800,
@@ -508,14 +511,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           autofocus: true,
           style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A)),
           decoration: InputDecoration(
-            hintText: 'Gym name',
+            hintText: 'Nom de la salle',
             hintStyle: TextStyle(color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: isDark ? Colors.white54 : const Color(0xFF64748B))),
+            child: Text('Annuler', style: TextStyle(color: isDark ? Colors.white54 : const Color(0xFF64748B))),
           ),
           TextButton(
             onPressed: () async {
@@ -528,7 +531,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               if (context.mounted) Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: SportColors.cyan),
-            child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w800)),
+            child: const Text('Enregistrer', style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ],
       ),
@@ -536,9 +539,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildBottomNav() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final navBg = isDark ? SportColors.surfaceDark : Colors.white;
-    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+    final navBg = Colors.black.withValues(alpha: 0.6);
+    final borderColor = Colors.white.withValues(alpha: 0.10);
 
     return Container(
       decoration: BoxDecoration(
@@ -551,10 +553,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _NavItem(icon: Icons.dashboard, label: 'DASH', isActive: _currentIndex == 0, onTap: () => setState(() => _currentIndex = 0)),
-              _NavItem(icon: Icons.people, label: 'ATHLETES', isActive: _currentIndex == 1, onTap: () => setState(() => _currentIndex = 1)),
-              _NavItem(icon: Icons.card_membership, label: 'SUBS', isActive: _currentIndex == 2, badgeCount: _expiredCount, onTap: () => setState(() => _currentIndex = 2)),
-              _NavItem(icon: Icons.settings, label: 'SETTINGS', isActive: _currentIndex == 3, onTap: () => setState(() => _currentIndex = 3)),
+              _NavItem(icon: Icons.dashboard, label: 'ACCUEIL', isActive: _currentIndex == 0, onTap: () => setState(() => _currentIndex = 0)),
+              _NavItem(icon: Icons.people, label: 'ATHLÈTES', isActive: _currentIndex == 1, onTap: () => setState(() => _currentIndex = 1)),
+              _NavItem(icon: Icons.card_membership, label: 'ABOS', isActive: _currentIndex == 2, badgeCount: _expiredCount, onTap: () => setState(() => _currentIndex = 2)),
+              _NavItem(icon: Icons.settings, label: 'PARAMÈTRES', isActive: _currentIndex == 3, onTap: () => setState(() => _currentIndex = 3)),
             ],
           ),
         ),
@@ -573,9 +575,8 @@ class _QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? SportColors.cardDark : Colors.white;
-    final textColor = isDark ? Colors.white : SportColors.textLight;
+    final cardBg = Colors.black.withValues(alpha: 0.45);
+    final textColor = Colors.white;
 
     return Material(
       color: cardBg,
@@ -617,9 +618,8 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeColor = SportColors.primary;
-    final inactiveColor = isDark ? Colors.white38 : const Color(0xFF94A3B8);
+    final inactiveColor = Colors.white54;
     final activeBg = activeColor.withValues(alpha: 0.1);
 
     return GestureDetector(
@@ -687,12 +687,12 @@ class _SettingsItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final titleColor = isDark ? Colors.white : SportColors.textLight;
-    final subtitleColor = isDark ? Colors.white38 : SportColors.textLightMuted;
-    final chevronColor = isDark ? Colors.white24 : const Color(0xFF94A3B8);
+    final titleColor = Colors.white;
+    final subtitleColor = Colors.white70;
+    final chevronColor = Colors.white38;
 
     return Card(
+      color: Colors.black.withValues(alpha: 0.45),
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: Container(

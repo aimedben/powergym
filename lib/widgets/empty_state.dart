@@ -16,10 +16,9 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final iconBg = isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04);
-    final iconColor = isDark ? Colors.white24 : const Color(0xFF94A3B8);
-    final textColor = isDark ? Colors.white54 : const Color(0xFF64748B);
+    final iconBg = Colors.white.withValues(alpha: 0.08);
+    final iconColor = Colors.white38;
+    final textColor = Colors.white60;
 
     return Center(
       child: Padding(

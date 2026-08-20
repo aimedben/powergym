@@ -126,7 +126,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                'ATHLETE MANAGEMENT',
+                'GESTION DES ATHLÈTES',
                 style: TextStyle(
                   fontFamily: SportFonts.condensed,
                   fontSize: 12,
