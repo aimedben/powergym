@@ -13,17 +13,19 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   Set<String> _dismissed = {};
+  bool _notificationsEnabled = true;
 
   @override
   void initState() {
     super.initState();
-    _loadDismissed();
+    _loadSettings();
   }
 
-  Future<void> _loadDismissed() async {
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _dismissed = (prefs.getStringList('dismissed_notifications') ?? []).toSet();
+      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
     });
   }
 
@@ -52,7 +54,38 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         title: const Text('Notifications', style: TextStyle(fontWeight: FontWeight.w800)),
       ),
-      body: Consumer<AthleteService>(
+      body: !_notificationsEnabled
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.notifications_off_outlined, size: 48, color: isDark ? Colors.white24 : const Color(0xFF94A3B8)),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Notifications désactivées',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Activez les notifications dans\nParamètres pour voir les alertes.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 15, color: isDark ? Colors.white38 : const Color(0xFF64748B)),
+                  ),
+                ],
+              ),
+            )
+          : Consumer<AthleteService>(
         builder: (context, athleteService, child) {
           final allNotifications = _buildNotifications(athleteService);
           final visible = allNotifications.where((n) => !_dismissed.contains(n['key'] as String)).toList();

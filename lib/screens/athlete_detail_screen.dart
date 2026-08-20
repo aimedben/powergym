@@ -1341,9 +1341,6 @@ class AthleteDetailScreen extends StatelessWidget {
                 style: TextStyle(color: _textPrimary(context)),
                 items: const [
                   DropdownMenuItem(value: SubscriptionType.monthly, child: Text('Mensuel')),
-                  DropdownMenuItem(value: SubscriptionType.quarterly, child: Text('Trimestriel')),
-                  DropdownMenuItem(value: SubscriptionType.semester, child: Text('Semestriel')),
-                  DropdownMenuItem(value: SubscriptionType.annual, child: Text('Annuel')),
                 ],
                 onChanged: (v) => setDialogState(() {
                   selectedType = v!;

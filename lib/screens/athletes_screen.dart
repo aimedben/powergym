@@ -786,9 +786,6 @@ class _AthletesScreenState extends State<AthletesScreen> {
                 style: const TextStyle(color: Colors.white),
                 items: const [
                   DropdownMenuItem(value: SubscriptionType.monthly, child: Text('Mensuel')),
-                  DropdownMenuItem(value: SubscriptionType.quarterly, child: Text('3 Mois')),
-                  DropdownMenuItem(value: SubscriptionType.semester, child: Text('6 Mois')),
-                  DropdownMenuItem(value: SubscriptionType.annual, child: Text('1 An')),
                 ],
                 onChanged: (v) => setDialogState(() {
                   selectedType = v!;

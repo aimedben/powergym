@@ -5,9 +5,6 @@ import '../models/subscription.dart';
 class PricingService extends ChangeNotifier {
   static const Map<SubscriptionType, String> _defaultPrices = {
     SubscriptionType.monthly: '1500',
-    SubscriptionType.quarterly: '4500',
-    SubscriptionType.semester: '6000',
-    SubscriptionType.annual: '15000',
   };
 
   Map<SubscriptionType, String> _prices = Map.from(_defaultPrices);

@@ -26,16 +26,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _gymName = 'PowerGym Seddouk';
   int _expiredCount = 0;
   int _notifCount = 0;
+  bool _notificationsEnabled = true;
 
   @override
   void initState() {
     super.initState();
-    _loadGymName();
+    _loadSettings();
   }
 
-  Future<void> _loadGymName() async {
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() => _gymName = prefs.getString('coach_gym') ?? 'PowerGym Seddouk');
+    setState(() {
+      _gymName = prefs.getString('coach_gym') ?? 'PowerGym Seddouk';
+      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+    });
   }
 
   void _updateCounts(AthleteService service) {
@@ -252,7 +256,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         Expanded(
           child: SportButton(
-            label: 'AJOUTER ATHLÈTE',
+            label: 'AJOUTER',
             icon: Icons.person_add,
             gradient: sportPrimaryGradient,
             height: 50,
@@ -480,7 +484,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 _SettingsItem(icon: Icons.business, title: 'Nom de la salle', subtitle: _gymName, color: SportColors.cyan, onTap: () => _showEditGymDialog()),
                 _SettingsItem(icon: Icons.attach_money, title: 'Tarifs', subtitle: 'Personnaliser les prix', color: const Color(0xFF10B981), onTap: () => Navigator.pushNamed(context, '/pricing')),
-                _SettingsItem(icon: Icons.notifications, title: 'Notifications', subtitle: 'Gérer les alertes', color: SportColors.green, onTap: () => Navigator.pushNamed(context, '/notifications')),
+                _SettingsItem(
+                  icon: Icons.notifications,
+                  title: 'Notifications',
+                  subtitle: _notificationsEnabled ? 'Activées' : 'Désactivées',
+                  color: SportColors.green,
+                  trailing: Switch(
+                    value: _notificationsEnabled,
+                    onChanged: (value) async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('notifications_enabled', value);
+                      setState(() => _notificationsEnabled = value);
+                    },
+                    activeColor: SportColors.primary,
+                  ),
+                  onTap: () {},
+                ),
                 _SettingsItem(icon: Icons.info_outline, title: 'À propos', subtitle: 'Version 1.0.0', color: SportColors.amber, onTap: () {}),
               ],
             ),

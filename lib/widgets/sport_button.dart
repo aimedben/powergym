@@ -58,11 +58,13 @@ class _SportButtonState extends State<SportButton> {
                 widget.label,
                 style: const TextStyle(
                   fontFamily: SportFonts.condensed,
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: 0.6,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           );

@@ -10,16 +10,10 @@ class PricingSettingsScreen extends StatelessWidget {
 
   static const Map<SubscriptionType, String> _typeLabels = {
     SubscriptionType.monthly: 'Mensuel',
-    SubscriptionType.quarterly: '3 Mois',
-    SubscriptionType.semester: '6 Mois',
-    SubscriptionType.annual: '1 An',
   };
 
   static const Map<SubscriptionType, IconData> _typeIcons = {
     SubscriptionType.monthly: Icons.calendar_month,
-    SubscriptionType.quarterly: Icons.date_range,
-    SubscriptionType.semester: Icons.calendar_today,
-    SubscriptionType.annual: Icons.event,
   };
 
   @override
@@ -80,7 +74,7 @@ class PricingSettingsScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Price cards
-              ...SubscriptionType.values.where((t) => t != SubscriptionType.custom).map((type) {
+              ..._typeLabels.keys.map((type) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: _PricingCard(
@@ -119,9 +113,6 @@ class PricingSettingsScreen extends StatelessWidget {
     final pricing = context.read<PricingService>();
     const defaults = {
       SubscriptionType.monthly: '1500',
-      SubscriptionType.quarterly: '4500',
-      SubscriptionType.semester: '6000',
-      SubscriptionType.annual: '15000',
     };
     for (final entry in defaults.entries) {
       pricing.updatePrice(entry.key, entry.value);

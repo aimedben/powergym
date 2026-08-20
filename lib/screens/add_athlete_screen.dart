@@ -756,19 +756,12 @@ class _AddAthleteScreenState extends State<AddAthleteScreen> {
   Widget _buildSubscriptionTypeSelector(bool isDark, Color cardColor, Color textColor) {
     final types = [
       {'type': SubscriptionType.monthly, 'label': 'Mensuel', 'icon': Icons.calendar_month},
-      {'type': SubscriptionType.quarterly, 'label': '3 Mois', 'icon': Icons.date_range},
-      {'type': SubscriptionType.semester, 'label': '6 Mois', 'icon': Icons.calendar_today},
-      {'type': SubscriptionType.annual, 'label': '1 An', 'icon': Icons.calendar_month},
     ];
 
     return Column(
       children: [
         Row(
-          children: types.take(2).map((t) => Expanded(child: _buildTypeChip(t, isDark))).toList(),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: types.skip(2).map((t) => Expanded(child: _buildTypeChip(t, isDark))).toList(),
+          children: types.map((t) => Expanded(child: _buildTypeChip(t, isDark))).toList(),
         ),
       ],
     );
